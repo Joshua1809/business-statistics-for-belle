@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Stats Drill</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Young+Serif&display=swap">
+<style>
+/* Layout: one centred column on graph paper; header, topic picker, then a single question card that becomes a results sheet. */
+:root{
+  --bg:#e9eef1;
+  --paper:#fbfcfd;
+  --ink:#14222b;
+  --muted:#58697414;
+  --muted-ink:#55666f;
+  --line:#c9d5db;
+  --grid:#d9e2e7;
+  --accent:#2a3fb5;
+  --accent-ink:#ffffff;
+  --accent-soft:#e3e8fb;
+  --good:#0d7a5f;
+  --good-soft:#dcf2ea;
+  --bad:#b3263e;
+  --bad-soft:#f9e1e5;
+  --display:"Young Serif",Georgia,serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1519;--paper:#162027;--ink:#e5edf0;--muted-ink:#9aabb4;--line:#2b3a43;--grid:#1a252b;
+    --accent:#8ea2ff;--accent-ink:#0e1519;--accent-soft:#222c52;
+    --good:#4fd1a8;--good-soft:#123a31;--bad:#ff8a9d;--bad-soft:#40202a;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1519;--paper:#162027;--ink:#e5edf0;--muted-ink:#9aabb4;--line:#2b3a43;--grid:#1a252b;
+  --accent:#8ea2ff;--accent-ink:#0e1519;--accent-soft:#222c52;
+  --good:#4fd1a8;--good-soft:#123a31;--bad:#ff8a9d;--bad-soft:#40202a;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  background-color:var(--bg);
+  background-image:
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  color:var(--ink);
+  font:16px/1.55 var(--body);
+  padding-block:28px 56px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,2.75rem);letter-spacing:-.01em}
+h2{font-size:1.5rem}
+h3{font-size:1.15rem}
+p{margin:0}
+.eyebrow{font:500 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-ink)}
+header.top{display:flex;flex-direction:column;gap:10px}
+header.top p{color:var(--muted-ink);max-width:56ch}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{
+  font:500 .85rem/1 var(--body);padding:10px 12px;border-radius:4px;border:1px solid var(--line);
+  background:transparent;color:var(--ink);cursor:pointer;min-height:40px;
+}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chip:hover{border-color:var(--accent)}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{
+  background:var(--accent);color:var(--accent-ink);border:1px solid var(--accent);border-radius:4px;
+  padding:12px 18px;font-weight:600;cursor:pointer;min-height:44px;
+}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.field{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted-ink)}
+select{background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:10px 12px;min-height:44px}
+.mastery{display:grid;grid-template-columns:1fr;gap:12px}
+.m-row{display:grid;grid-template-columns:minmax(0,11rem) 1fr auto;gap:12px;align-items:center;font-size:.9rem}
+.m-row .num{font-family:var(--mono);font-size:.8rem;color:var(--muted-ink);font-variant-numeric:tabular-nums}
+.bar{height:8px;background:var(--grid);border-radius:2px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent)}
+.bar.good>i{background:var(--good)}
+.progress{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.progress .stat{font:500 .85rem var(--mono);font-variant-numeric:tabular-nums;color:var(--muted-ink)}
+.qtext{font-size:1.15rem;line-height:1.5;max-width:60ch}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{
+  display:grid;grid-template-columns:2rem 1fr;gap:12px;align-items:start;text-align:left;
+  padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:transparent;cursor:pointer;min-height:48px;
+}
+.opt:hover:not(:disabled){border-color:var(--accent);background:var(--accent-soft)}
+.opt .k{font:500 .85rem var(--mono);color:var(--muted-ink);padding-top:2px}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.opt:disabled{cursor:default}
+.numform{display:flex;gap:10px;flex-wrap:wrap;align-items:stretch}
+.numform input{
+  flex:1 1 10rem;min-width:0;padding:12px 14px;border:1px solid var(--line);border-radius:4px;background:var(--paper);
+  font:500 1.1rem var(--mono);font-variant-numeric:tabular-nums;
+}
+.hint{font-size:.85rem;color:var(--muted-ink)}
+.feedback{border-radius:4px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.feedback.good{background:var(--good-soft);border:1px solid var(--good)}
+.feedback.bad{background:var(--bad-soft);border:1px solid var(--bad)}
+.feedback strong{font-family:var(--display);font-weight:400;font-size:1.1rem}
+.feedback .why{max-width:62ch}
+.score{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.score .big{font:400 3.25rem/1 var(--display);font-variant-numeric:tabular-nums}
+.missed{display:flex;flex-direction:column;gap:12px}
+.miss{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:6px}
+.miss .ans{font-family:var(--mono);font-size:.9rem}
+details.sheet{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:0}
+details.sheet summary{cursor:pointer;padding:16px 22px;font:500 .8rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted-ink)}
+details.sheet .tbl{padding:0 22px 18px;overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted-ink)}
+td.f{font-family:var(--mono);font-size:.82rem}
+.theme-note{font-size:.8rem;color:var(--muted-ink)}
+@media (max-width:520px){
+  .card{padding:16px}
+  .m-row{grid-template-columns:1fr auto;}
+  .m-row .bar{grid-column:1 / -1;order:3}
+}
+@media (prefers-reduced-motion:no-preference){
+  .bar>i{transition:width .4s ease}
+}
+</style>
+<style>html,body{margin:0}</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow">Business Statistics · Semester 1</span>
+    <h1>Business Stats Drill</h1>
+    <p>Pick your topics, answer ten questions, and get a worked solution after each one. Numeric questions use fresh numbers every session. <a href="guide.html" style="color:var(--accent)">Read the study guide first</a>.</p>
+  </header>
+  <main id="app" aria-live="polite"></main>
+  <details class="sheet">
+    <summary>Formula sheet</summary>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Topic</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr><td>Sample variance</td><td class="f">s² = Σ(x − x̄)² / (n − 1)</td></tr>
+          <tr><td>Outlier fences</td><td class="f">Q1 − 1.5×IQR, Q3 + 1.5×IQR</td></tr>
+          <tr><td>Addition rule</td><td class="f">P(A or B) = P(A) + P(B) − P(A and B)</td></tr>
+          <tr><td>Bayes</td><td class="f">P(A|B) = P(B|A) P(A) / P(B)</td></tr>
+          <tr><td>Binomial</td><td class="f">P(X=k) = C(n,k) pᵏ (1−p)ⁿ⁻ᵏ; mean np</td></tr>
+          <tr><td>z-score</td><td class="f">z = (x − μ) / σ</td></tr>
+          <tr><td>Standard error</td><td class="f">σ / √n; proportion √(p(1−p)/n)</td></tr>
+          <tr><td>CI for mean</td><td class="f">x̄ ± z σ/√n (z 95% = 1.96)</td></tr>
+          <tr><td>Sample size</td><td class="f">n = (zσ / E)², round up</td></tr>
+          <tr><td>Test statistic</td><td class="f">z = (x̄ − μ₀) / (σ/√n)</td></tr>
+          <tr><td>Regression</td><td class="f">ŷ = b₀ + b₁x; R² = r²</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </details>
+</div>
+
+<script>
+(function(){
+  var TOPICS={desc:"Descriptive statistics",prob:"Probability",dist:"Distributions",samp:"Sampling & CLT",ci:"Confidence intervals",hyp:"Hypothesis testing",reg:"Regression"};
+  var ORDER=["desc","prob","dist","samp","ci","hyp","reg"];
+
+  function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+  function pick(a){return a[Math.floor(Math.random()*a.length)]}
+  function r2(x){return Math.round(x*100)/100}
+  function r3(x){return Math.round(x*1000)/1000}
+  function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+
+  /* Fixed multiple-choice and numeric questions. mc: options with a = index of the right one. */
+  var BANK=[
+    {t:"desc",q:"A small business has monthly sales (in $1,000s) of 3, 5, 6, 7 and 59. Which measure gives the best picture of a typical month?",o:["Mean (16)","Median (6)","Range (56)","Standard deviation"],a:1,why:"The 59 is an outlier that drags the mean up to 16. The median ignores how extreme the largest value is, so it stays at 6."},
+    {t:"desc",q:"Sample data: 2, 4, 4, 6, 9. What is the sample variance (divide by n − 1)?",num:1,ans:7,tol:.01,why:"x̄ = 25/5 = 5. Squared deviations: 9 + 1 + 1 + 1 + 16 = 28. Divide by n − 1 = 4, giving 7."},
+    {t:"desc",q:"A distribution has mean 52 and median 47. What is the likely shape?",o:["Left-skewed","Symmetric","Right-skewed","Bimodal"],a:2,why:"When the mean is pulled above the median by a long right tail, the distribution is right-skewed."},
+    {t:"desc",q:"Q1 = 20 and Q3 = 36. What is the upper outlier fence, using the 1.5 × IQR rule?",num:1,ans:60,tol:.01,why:"IQR = 36 − 20 = 16. Upper fence = Q3 + 1.5 × 16 = 36 + 24 = 60."},
+    {t:"desc",q:"Product A has mean 50 and SD 5. Product B has mean 200 and SD 16. Which has more relative variability?",o:["Product A (CV 10%)","Product B (CV 8%)","They are equal","Cannot be compared"],a:0,why:"CV = s / x̄. A: 5/50 = 10%. B: 16/200 = 8%. A varies more relative to its mean."},
+
+    {t:"prob",q:"P(A) = 0.4, P(B) = 0.5, P(A and B) = 0.2. What is P(A or B)?",num:1,ans:.7,tol:.001,why:"P(A or B) = 0.4 + 0.5 − 0.2 = 0.7."},
+    {t:"prob",q:"Events A and B each have positive probability and are mutually exclusive. Which statement is true?",o:["They are independent","They are dependent","They are independent only if P(A) = P(B)","Both occur with probability P(A)×P(B)"],a:1,why:"If A and B are mutually exclusive, P(A and B) = 0, but P(A)×P(B) > 0. So they cannot be independent."},
+    {t:"prob",q:"P(A and B) = 0.15 and P(B) = 0.5. What is P(A | B)?",num:1,ans:.3,tol:.001,why:"P(A | B) = P(A and B) / P(B) = 0.15 / 0.5 = 0.3."},
+    {t:"prob",q:"2% of parts are defective. A test flags 95% of defective parts and also flags 10% of good parts. A part is flagged. What is the probability it is defective?",num:1,ans:.162,tol:.005,why:"P(flag) = 0.02×0.95 + 0.98×0.10 = 0.019 + 0.098 = 0.117. Bayes: 0.019 / 0.117 ≈ 0.162. Most flagged parts are good because good parts are so common."},
+
+    {t:"dist",q:"X is binomial with n = 5 and p = 0.4. What is P(X = 2)?",num:1,ans:.3456,tol:.002,why:"C(5,2) × 0.4² × 0.6³ = 10 × 0.16 × 0.216 = 0.3456."},
+    {t:"dist",q:"Weekly demand is N(100, 15). What is P(X < 115)?",num:1,ans:.8413,tol:.005,why:"z = (115 − 100) / 15 = 1. The standard normal table gives P(Z < 1) = 0.8413."},
+    {t:"dist",q:"Which situation breaks the binomial conditions?",o:["20 customers each buy or do not buy, independently, with p = 0.3","Drawing 10 cards from a deck without replacement and counting hearts","Flipping a fair coin 50 times and counting heads","Checking 15 independent parts and counting defects"],a:1,why:"Without replacement, p changes after each draw and the trials are dependent. Binomial needs a constant p and independent trials."},
+    {t:"dist",q:"Order sizes have mean 500 and SD 40 and are roughly normal. About 95% of orders fall between which values?",o:["460 and 540","420 and 580","380 and 620","480 and 520"],a:1,why:"By the empirical rule, about 95% lie within 2 SDs: 500 ± 80 gives 420 to 580."},
+
+    {t:"samp",q:"Population SD σ = 20, sample size n = 100. What is the standard error of the sample mean?",num:1,ans:2,tol:.01,why:"SE = σ / √n = 20 / 10 = 2."},
+    {t:"samp",q:"You quadruple the sample size. What happens to the standard error of the mean?",o:["It halves","It quarters","It doubles","It does not change"],a:0,why:"SE = σ / √n. Replacing n with 4n gives σ / (2√n), which is half the old value."},
+    {t:"samp",q:"A population is strongly right-skewed. You take samples of n = 50. What does the central limit theorem say about the distribution of x̄?",o:["It is right-skewed like the population","It is approximately normal","It is uniform","Nothing can be said without knowing σ"],a:1,why:"For large n (about 30 or more), the sampling distribution of x̄ is approximately normal whatever the population shape."},
+    {t:"samp",q:"True proportion p = 0.4, n = 100. What is the standard error of p̂?",num:1,ans:.049,tol:.002,why:"SE = √(p(1 − p) / n) = √(0.24 / 100) = √0.0024 ≈ 0.049."},
+    {t:"samp",q:"μ = 80, σ = 16, n = 64. What is P(x̄ > 82)?",num:1,ans:.1587,tol:.005,why:"SE = 16 / 8 = 2. z = (82 − 80) / 2 = 1. P(Z > 1) = 1 − 0.8413 = 0.1587."},
+
+    {t:"ci",q:"x̄ = 50, σ = 10, n = 25. What is the margin of error for a 95% confidence interval for the mean?",num:1,ans:3.92,tol:.05,why:"SE = 10 / 5 = 2. Margin = 1.96 × 2 = 3.92."},
+    {t:"ci",q:"You raise the confidence level from 95% to 99% with the same data. What happens to the interval?",o:["It gets wider","It gets narrower","It stays the same","Its centre moves"],a:0,why:"A higher confidence level needs a larger critical value (2.576 instead of 1.96), which widens the interval."},
+    {t:"ci",q:"A poll finds 200 of 400 customers prefer a new design. What is the 95% margin of error for the proportion?",num:1,ans:.049,tol:.002,why:"p̂ = 0.5. SE = √(0.25 / 400) = 0.025. Margin = 1.96 × 0.025 = 0.049."},
+    {t:"ci",q:"σ = 15. You want a 95% margin of error of 3. What sample size is needed?",num:1,ans:97,tol:.5,why:"n = (1.96 × 15 / 3)² = 9.8² = 96.04. Always round up, so n = 97."},
+    {t:"ci",q:"Which is the correct reading of a 95% confidence interval?",o:["There is a 95% chance the true mean is inside this interval","95% of individual values lie inside this interval","The method captures the true mean in about 95% of repeated samples","The sample mean is 95% accurate"],a:2,why:"The 95% describes the long-run success rate of the method. A given interval either contains the true value or it does not."},
+
+    {t:"hyp",q:"The p-value is 0.03 and α = 0.05. What is the correct decision?",o:["Fail to reject H₀","Reject H₀","Accept H₀","Increase the sample size and decide later"],a:1,why:"p < α, so the result is unlikely enough under H₀ to reject it."},
+    {t:"hyp",q:"A Type I error is…",o:["Failing to reject a false H₀","Rejecting a true H₀","Rejecting a false H₀","Failing to reject a true H₀"],a:1,why:"Type I means rejecting H₀ when it is actually true. Its probability is α. Type II (β) is failing to reject a false H₀."},
+    {t:"hyp",q:"H₀: μ = 100. A sample gives x̄ = 105 with σ = 15 and n = 36. What is the z statistic?",num:1,ans:2,tol:.01,why:"SE = 15 / 6 = 2.5. z = (105 − 100) / 2.5 = 2.0."},
+    {t:"hyp",q:"The p-value is 0.20 and α = 0.05. Which conclusion is worded correctly?",o:["H₀ is true","We accept H₀","We fail to reject H₀: insufficient evidence against it","The alternative is false"],a:2,why:"A large p-value only means the data do not give enough evidence against H₀. It does not prove H₀ true."},
+
+    {t:"reg",q:"A regression gives r = −0.9. How would you describe the relationship?",o:["Weak positive","Strong negative","Strong positive","No linear relationship"],a:1,why:"The sign is negative and |r| is close to 1, so there is a strong negative linear relationship."},
+    {t:"reg",q:"The fitted line is ŷ = 12 + 2.5x. What is the prediction when x = 8?",num:1,ans:32,tol:.01,why:"ŷ = 12 + 2.5 × 8 = 12 + 20 = 32."},
+    {t:"reg",q:"r = 0.8 in a simple regression. What is R²?",num:1,ans:.64,tol:.005,why:"In simple regression R² = r² = 0.8² = 0.64. The model explains 64% of the variation in y."},
+    {t:"reg",q:"Sales = 20 + 3.5 × advertising ($1,000s). How do you interpret the slope 3.5?",o:["Sales are 3.5 when advertising is 0","Each extra $1,000 of advertising is associated with 3.5 more units of sales","Advertising explains 3.5% of sales","Advertising causes exactly 3.5 more sales"],a:1,why:"The slope is the expected change in y for a one-unit increase in x. Regression alone does not prove causation."}
+  ];
+
+  /* Generators create new numbers every time. */
+  var GEN={
+    desc:[function(){
+      var xs=[],s;do{xs=[];for(var i=0;i<5;i++)xs.push(rnd(2,20));s=xs.reduce(function(a,b){return a+b},0)}while(s%5!==0);
+      return{t:"desc",q:"Weekly orders over five weeks: "+xs.join(", ")+". What is the mean?",num:1,ans:s/5,tol:.01,why:"Sum = "+s+". Mean = "+s+" / 5 = "+(s/5)+"."};
+    }],
+    prob:[function(){
+      var a=pick([.2,.3,.4,.5]),b=pick([.2,.4,.5,.6]);
+      return{t:"prob",q:"Events A and B are independent with P(A) = "+a+" and P(B) = "+b+". What is P(A and B)?",num:1,ans:r3(a*b),tol:.002,why:"For independent events, P(A and B) = P(A) × P(B) = "+a+" × "+b+" = "+r3(a*b)+"."};
+    }],
+    dist:[function(){
+      var sd=pick([4,5,8,10,12]),mu=pick([60,70,80,100]),k=pick([-1.5,-1,-.5,.5,1,1.5,2]),x=mu+k*sd;
+      return{t:"dist",q:"Test scores have mean "+mu+" and standard deviation "+sd+". What is the z-score of a score of "+x+"?",num:1,ans:k,tol:.01,why:"z = (x − μ) / σ = ("+x+" − "+mu+") / "+sd+" = "+k+"."};
+    },function(){
+      var n=pick([20,40,50,80,100]),p=pick([.1,.2,.25,.3,.4,.5]);
+      return{t:"dist",q:"X is binomial with n = "+n+" and p = "+p+". What is the mean of X?",num:1,ans:r2(n*p),tol:.01,why:"Mean = np = "+n+" × "+p+" = "+r2(n*p)+"."};
+    }],
+    samp:[function(){
+      var sd=pick([10,12,15,20,24,30]),n=pick([16,25,36,49,64,100]),v=r2(sd/Math.sqrt(n));
+      return{t:"samp",q:"σ = "+sd+" and n = "+n+". What is the standard error of the sample mean? (2 decimals)",num:1,ans:v,tol:.01,why:"SE = σ / √n = "+sd+" / "+Math.sqrt(n)+" = "+v+"."};
+    }],
+    ci:[function(){
+      var sd=pick([10,12,15,20,24,30]),n=pick([16,25,36,49,64,100]),v=r2(1.96*sd/Math.sqrt(n));
+      return{t:"ci",q:"σ = "+sd+" and n = "+n+". What is the margin of error of a 95% CI for the mean? Use z = 1.96. (2 decimals)",num:1,ans:v,tol:.05,why:"SE = "+sd+" / "+Math.sqrt(n)+" = "+r2(sd/Math.sqrt(n))+". Margin = 1.96 × SE = "+v+"."};
+    }],
+    hyp:[function(){
+      var mu=pick([50,100,200]),sd=pick([10,15,20]),n=pick([25,36,64,100]),d=pick([2,3,4,-3,5]),se=sd/Math.sqrt(n),z=r2(d/se);
+      return{t:"hyp",q:"H₀: μ = "+mu+". A sample of n = "+n+" has x̄ = "+(mu+d)+" and σ = "+sd+". What is the z statistic? (2 decimals)",num:1,ans:z,tol:.02,why:"SE = "+sd+" / "+Math.sqrt(n)+" = "+r2(se)+". z = ("+(mu+d)+" − "+mu+") / "+r2(se)+" = "+z+"."};
+    }],
+    reg:[function(){
+      var b0=pick([10,15,20,30]),b1=pick([1.5,2,2.5,3,4]),x=pick([4,5,8,10,12]),v=r2(b0+b1*x);
+      return{t:"reg",q:"A fitted line is ŷ = "+b0+" + "+b1+"x. What is the prediction when x = "+x+"?",num:1,ans:v,tol:.01,why:"ŷ = "+b0+" + "+b1+" × "+x+" = "+v+"."};
+    }]
+  };
+
+  function build(topics,count){
+    var pool=[];
+    topics.forEach(function(t){
+      BANK.filter(function(q){return q.t===t}).forEach(function(q){pool.push(q)});
+      GEN[t].forEach(function(g){pool.push(g())});
+    });
+    pool=shuffle(pool);
+    while(pool.length<count){var t=pick(topics);pool.push(pick(GEN[t])())}
+    return pool.slice(0,count).map(function(q){
+      var c={t:q.t,q:q.q,why:q.why};
+      if(q.num){c.num=true;c.ans=q.ans;c.tol=q.tol}
+      else{c.opts=shuffle(q.o.map(function(text,i){return{text:text,ok:i===q.a}}))}
+      return c;
+    });
+  }
+
+  /* Per-browser progress. Wrapped so the page still works with storage blocked. */
+  var KEY="business-stats-drill-v1";
+  function loadStats(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&typeof s==="object")return s}catch(e){}return{}}
+  function saveStats(s){try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+
+  var app=document.getElementById("app");
+  var S={screen:"start",sel:ORDER.slice(),len:10,qs:[],i:0,done:false,score:0,log:[],pick:null,num:"",right:null,stats:loadStats()};
+
+  function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}
+  function fmt(n){return String(Math.round(n*10000)/10000)}
+
+  function viewStart(){
+    var chips=ORDER.map(function(t){
+      return '<button type="button" class="chip" data-act="topic" data-t="'+t+'" aria-pressed="'+(S.sel.indexOf(t)>-1)+'">'+TOPICS[t]+'</button>';
+    }).join("");
+    var rows=ORDER.map(function(t){
+      var st=S.stats[t]||{seen:0,right:0};
+      var pct=st.seen?Math.round(100*st.right/st.seen):0;
+      return '<div class="m-row"><span>'+TOPICS[t]+'</span><div class="bar good" role="img" aria-label="'+pct+' percent correct"><i style="width:'+pct+'%"></i></div><span class="num">'+(st.seen?(st.right+"/"+st.seen):"not tried")+'</span></div>';
+    }).join("");
+    return '<section class="card">'+
+      '<div><span class="eyebrow">Choose topics</span></div>'+
+      '<div class="chips">'+chips+'</div>'+
+      '<div class="row">'+
+        '<button type="button" class="btn ghost" data-act="all">Select all</button>'+
+        '<label class="field">Questions<select id="len">'+[5,10,15].map(function(n){return '<option value="'+n+'"'+(n===S.len?" selected":"")+'>'+n+'</option>'}).join("")+'</select></label>'+
+        '<button type="button" class="btn" data-act="start"'+(S.sel.length?"":" disabled")+'>Start practice</button>'+
+      '</div>'+
+    '</section>'+
+    '<section class="card"><div><span class="eyebrow">Your accuracy on this device</span></div><div class="mastery">'+rows+'</div>'+
+      '<div class="row"><button type="button" class="btn ghost" data-act="reset">Reset progress</button></div></section>';
+  }
+
+  function viewQuestion(){
+    var q=S.qs[S.i],n=S.qs.length,answered=S.right!==null;
+    var pct=Math.round(100*S.i/n);
+    var head='<div class="progress"><span class="eyebrow">'+TOPICS[q.t]+'</span><span class="stat">Q '+(S.i+1)+' / '+n+' · '+S.score+' correct</span></div>'+
+      '<div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="'+n+'" aria-valuenow="'+S.i+'"><i style="width:'+pct+'%"></i></div>';
+    var body='<p class="qtext">'+esc(q.q)+'</p>';
+    if(q.num){
+      body+='<form class="numform" id="numform" novalidate>'+
+        '<input id="numin" type="text" inputmode="decimal" autocomplete="off" placeholder="Your answer" aria-label="Your answer" value="'+esc(S.num)+'"'+(answered?" disabled":"")+'>'+
+        '<button type="submit" class="btn"'+(answered?" disabled":"")+'>Check</button></form>'+
+        '<p class="hint">Give your answer as a number. Small rounding differences are accepted.</p>';
+    }else{
+      body+='<div class="opts">'+q.opts.map(function(o,i){
+        var cls="opt";
+        if(answered){if(o.ok)cls+=" right";else if(S.pick===i)cls+=" wrong"}
+        return '<button type="button" class="'+cls+'" data-act="opt" data-i="'+i+'"'+(answered?" disabled":"")+'><span class="k">'+"ABCD".charAt(i)+'</span><span>'+esc(o.text)+'</span></button>';
+      }).join("")+'</div>';
+    }
+    if(answered){
+      var correctText=q.num?fmt(q.ans):esc(q.opts.filter(function(o){return o.ok})[0].text);
+      body+='<div class="feedback '+(S.right?"good":"bad")+'"><strong>'+(S.right?"Correct":"Not quite")+'</strong>'+
+        (S.right?"":'<span>Answer: <span style="font-family:var(--mono)">'+correctText+'</span></span>')+
+        '<p class="why">'+esc(q.why)+'</p></div>'+
+        '<div class="row"><button type="button" class="btn" id="nextbtn" data-act="next">'+(S.i+1<n?"Next question":"See results")+'</button></div>';
+    }
+    return '<section class="card">'+head+body+'</section>';
+  }
+
+  function viewResults(){
+    var n=S.qs.length,pct=Math.round(100*S.score/n);
+    var by={};S.log.forEach(function(l){by[l.t]=by[l.t]||{n:0,r:0};by[l.t].n++;if(l.ok)by[l.t].r++});
+    var rows=Object.keys(by).map(function(t){
+      var p=Math.round(100*by[t].r/by[t].n);
+      return '<div class="m-row"><span>'+TOPICS[t]+'</span><div class="bar good"><i style="width:'+p+'%"></i></div><span class="num">'+by[t].r+'/'+by[t].n+'</span></div>';
+    }).join("");
+    var missed=S.log.filter(function(l){return !l.ok});
+    var msg=pct>=80?"Strong session.":pct>=60?"Solid. Review the misses below.":"Good start. Work through the solutions below and try again.";
+    var miss=missed.length?'<div class="missed"><h3>Review</h3>'+missed.map(function(l){
+      return '<div class="miss"><span class="eyebrow">'+TOPICS[l.t]+'</span><p>'+esc(l.q)+'</p><p class="ans">Answer: '+esc(l.correct)+'</p><p class="hint">'+esc(l.why)+'</p></div>';
+    }).join("")+'</div>':'<p>No misses. Try more questions or a different topic mix.</p>';
+    return '<section class="card"><div class="score"><span class="big">'+S.score+'/'+n+'</span><span>'+pct+'% · '+msg+'</span></div>'+
+      '<div class="mastery">'+rows+'</div>'+
+      '<div class="row"><button type="button" class="btn" data-act="start">Practice again</button><button type="button" class="btn ghost" data-act="home">Change topics</button></div></section>'+
+      '<section class="card">'+miss+'</section>';
+  }
+
+  function render(){
+    app.innerHTML=S.screen==="start"?viewStart():S.screen==="quiz"?viewQuestion():viewResults();
+    var f=app.querySelector("#numin:not([disabled])")||app.querySelector("#nextbtn");
+    if(f&&S.screen==="quiz")f.focus();
+  }
+
+  function record(q,ok,given){
+    var st=S.stats[q.t]||{seen:0,right:0};st.seen++;if(ok)st.right++;S.stats[q.t]=st;saveStats(S.stats);
+    if(ok)S.score++;
+    var correct=q.num?fmt(q.ans):q.opts.filter(function(o){return o.ok})[0].text;
+    S.log.push({t:q.t,q:q.q,ok:ok,correct:correct,why:q.why});
+    S.right=ok;
+  }
+
+  function begin(){
+    if(!S.sel.length)return;
+    S.qs=build(S.sel,S.len);S.i=0;S.score=0;S.log=[];S.pick=null;S.num="";S.right=null;S.screen="quiz";render();
+    window.scrollTo(0,0);
+  }
+
+  app.addEventListener("click",function(e){
+    var b=e.target.closest("[data-act]");if(!b)return;
+    var a=b.getAttribute("data-act");
+    if(a==="topic"){
+      var t=b.getAttribute("data-t"),k=S.sel.indexOf(t);
+      if(k>-1)S.sel.splice(k,1);else S.sel.push(t);
+      render();
+    }else if(a==="all"){S.sel=ORDER.slice();render()}
+    else if(a==="start"){var sl=document.getElementById("len");if(sl)S.len=parseInt(sl.value,10)||10;begin()}
+    else if(a==="home"){S.screen="start";render()}
+    else if(a==="reset"){S.stats={};saveStats(S.stats);render()}
+    else if(a==="opt"&&S.right===null){
+      var i=parseInt(b.getAttribute("data-i"),10),q=S.qs[S.i];
+      S.pick=i;record(q,q.opts[i].ok);render();
+    }else if(a==="next"){
+      if(S.i+1<S.qs.length){S.i++;S.right=null;S.pick=null;S.num="";render()}
+      else{S.screen="results";render();window.scrollTo(0,0)}
+    }
+  });
+
+  app.addEventListener("submit",function(e){
+    e.preventDefault();
+    if(S.right!==null)return;
+    var inp=document.getElementById("numin");if(!inp)return;
+    var raw=inp.value.replace(/[,%\s]/g,"");
+    var v=parseFloat(raw);
+    if(isNaN(v)){inp.focus();return}
+    S.num=inp.value;
+    var q=S.qs[S.i];
+    record(q,Math.abs(v-q.ans)<=q.tol);
+    render();
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>

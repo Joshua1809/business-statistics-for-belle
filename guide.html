@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Business Statistics Study Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Young+Serif&display=swap">
+<style>
+/* Layout: one reading column on graph paper, a wrapping topic index at the top, a worked-example box in each section. */
+:root{
+  --bg:#e9eef1;--paper:#fbfcfd;--ink:#14222b;--muted-ink:#55666f;--line:#c9d5db;--grid:#d9e2e7;
+  --accent:#2a3fb5;--accent-ink:#ffffff;--accent-soft:#e3e8fb;--good:#0d7a5f;--good-soft:#dcf2ea;
+  --display:"Young Serif",Georgia,serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0e1519;--paper:#162027;--ink:#e5edf0;--muted-ink:#9aabb4;--line:#2b3a43;--grid:#1a252b;
+    --accent:#8ea2ff;--accent-ink:#0e1519;--accent-soft:#222c52;--good:#4fd1a8;--good-soft:#123a31;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0e1519;--paper:#162027;--ink:#e5edf0;--muted-ink:#9aabb4;--line:#2b3a43;--grid:#1a252b;
+  --accent:#8ea2ff;--accent-ink:#0e1519;--accent-soft:#222c52;--good:#4fd1a8;--good-soft:#123a31;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background-color:var(--bg);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;color:var(--ink);font:16px/1.6 var(--body);
+  padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px));
+}
+.wrap{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--display);font-weight:400;line-height:1.15;margin:0;text-wrap:balance}
+h1{font-size:clamp(2rem,6vw,2.75rem);letter-spacing:-.01em}
+h2{font-size:1.5rem}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font:500 .72rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted-ink)}
+header{display:flex;flex-direction:column;gap:10px}
+header p{color:var(--muted-ink);max-width:56ch}
+.btn{display:inline-block;background:var(--accent);color:var(--accent-ink);text-decoration:none;font-weight:600;border-radius:4px;padding:12px 18px;min-height:44px}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.ghost:hover{border-color:var(--accent)}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+nav.index{display:flex;flex-wrap:wrap;gap:8px}
+nav.index a{font:500 .85rem/1 var(--body);padding:10px 12px;border:1px solid var(--line);border-radius:4px;color:var(--ink);text-decoration:none;background:var(--paper)}
+nav.index a:hover{border-color:var(--accent)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+section.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px;display:flex;flex-direction:column;gap:14px;min-width:0;scroll-margin-top:16px}
+section.card p,section.card li{max-width:64ch}
+ul,ol{margin:0;padding-left:1.25rem;display:flex;flex-direction:column;gap:6px}
+.formula{font-family:var(--mono);font-size:.88rem}
+.example{background:var(--accent-soft);border:1px solid var(--line);border-radius:4px;padding:12px 14px}
+.example .eyebrow{display:block;margin-bottom:6px}
+.tip{background:var(--good-soft);border:1px solid var(--good);border-radius:4px;padding:12px 14px}
+.tip .eyebrow{display:block;margin-bottom:6px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .72rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted-ink)}
+td.f{font-family:var(--mono);font-size:.82rem}
+footer{display:flex;flex-direction:column;gap:12px;align-items:flex-start}
+@media (max-width:520px){section.card{padding:16px}}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Business Statistics · Semester 1</span>
+    <h1>Business Statistics Study Guide</h1>
+    <p>The seven core topics with formulas, worked examples and exam tips, followed by a formula table. Test yourself afterwards in the practice drill.</p>
+    <div class="row"><a class="btn" href="index.html">Practice drill</a></div>
+  </header>
+
+  <nav class="index" aria-label="Topics">
+    <a href="#desc">1 Descriptive</a>
+    <a href="#prob">2 Probability</a>
+    <a href="#dist">3 Distributions</a>
+    <a href="#samp">4 Sampling &amp; CLT</a>
+    <a href="#ci">5 Confidence intervals</a>
+    <a href="#hyp">6 Hypothesis testing</a>
+    <a href="#reg">7 Regression</a>
+    <a href="#formulas">Formula table</a>
+  </nav>
+
+  <section class="card" id="desc">
+    <h2>1. Descriptive statistics</h2>
+    <p>Descriptive statistics summarize a data set by its centre, its spread and its shape.</p>
+    <ul>
+      <li><strong>Mean</strong> is the average and is pulled by outliers. <strong>Median</strong> is the middle value and resists outliers, so use it for skewed data such as income. <strong>Mode</strong> is the most frequent value.</li>
+      <li><strong>Range</strong> = max − min. <strong>Sample variance</strong> <span class="formula">s² = Σ(x − x̄)² / (n − 1)</span> (divide by N for a population). <strong>Standard deviation</strong> <span class="formula">s = √s²</span>, in the same units as the data.</li>
+      <li><strong>Coefficient of variation</strong> <span class="formula">CV = s / x̄</span> compares spread across data sets with different scales.</li>
+      <li><strong>IQR</strong> = Q3 − Q1. Values below Q1 − 1.5×IQR or above Q3 + 1.5×IQR are flagged as outliers.</li>
+      <li><strong>Skew:</strong> mean &gt; median means right-skewed; mean &lt; median means left-skewed.</li>
+      <li><strong>Charts:</strong> histogram for one numeric variable, box plot for spread and outliers, scatter plot for two numeric variables, bar chart for categories.</li>
+    </ul>
+    <div class="tip"><span class="eyebrow">Exam tip</span>State whether you are using sample (n − 1) or population (N) formulas. Excel: AVERAGE, MEDIAN, STDEV.S, STDEV.P, QUARTILE.INC.</div>
+  </section>
+
+  <section class="card" id="prob">
+    <h2>2. Probability</h2>
+    <p>Probability measures how likely an event is, from 0 (impossible) to 1 (certain).</p>
+    <ul>
+      <li><strong>Complement:</strong> <span class="formula">P(A') = 1 − P(A)</span></li>
+      <li><strong>Addition rule:</strong> <span class="formula">P(A or B) = P(A) + P(B) − P(A and B)</span>. For mutually exclusive events the last term is 0.</li>
+      <li><strong>Multiplication rule:</strong> <span class="formula">P(A and B) = P(A) × P(B | A)</span>. For independent events this is P(A) × P(B).</li>
+      <li><strong>Conditional probability:</strong> <span class="formula">P(A | B) = P(A and B) / P(B)</span></li>
+      <li><strong>Bayes' theorem:</strong> <span class="formula">P(A | B) = P(B | A) × P(A) / P(B)</span>. Use it to reverse a conditional, for example from "a defective part fails the test" to "a part that fails the test is defective".</li>
+    </ul>
+    <div class="tip"><span class="eyebrow">Exam tip</span>Mutually exclusive and independent are different. Mutually exclusive events cannot happen together, so they are strongly dependent. For Bayes questions, draw a probability tree or a 2×2 table first.</div>
+  </section>
+
+  <section class="card" id="dist">
+    <h2>3. Probability distributions</h2>
+    <p><strong>Binomial</strong> counts successes in n independent trials, each with success probability p. Check four conditions: fixed n, two outcomes, constant p, independent trials.</p>
+    <ul>
+      <li><span class="formula">P(X = k) = C(n, k) × pᵏ × (1 − p)ⁿ⁻ᵏ</span></li>
+      <li>Mean = np; variance = np(1 − p)</li>
+      <li>Excel: BINOM.DIST(k, n, p, FALSE) for P(X = k); TRUE for P(X ≤ k)</li>
+    </ul>
+    <p><strong>Normal</strong> is the bell curve, described by mean μ and standard deviation σ.</p>
+    <ul>
+      <li>Standardize with <span class="formula">z = (x − μ) / σ</span>, then read the standard normal table.</li>
+      <li>Empirical rule: about 68% of values fall within 1σ, 95% within 2σ, 99.7% within 3σ.</li>
+      <li>Excel: NORM.DIST(x, μ, σ, TRUE) gives P(X ≤ x); NORM.S.DIST for z-scores; NORM.INV to go from a probability back to x.</li>
+    </ul>
+    <div class="example"><span class="eyebrow">Worked example</span>Exam scores are N(70, 10). P(X &gt; 85): z = (85 − 70) / 10 = 1.5, so P(Z &gt; 1.5) = 1 − 0.9332 = 0.0668, about 6.7%.</div>
+    <div class="tip"><span class="eyebrow">Exam tip</span>Sketch the curve and shade the area you want before using the table.</div>
+  </section>
+
+  <section class="card" id="samp">
+    <h2>4. Sampling and the central limit theorem</h2>
+    <p>A sample statistic such as x̄ varies from sample to sample. Its distribution is the <strong>sampling distribution</strong>.</p>
+    <ul>
+      <li>The mean of x̄ is μ. The standard error of the mean is <span class="formula">SE = σ / √n</span> (use s when σ is unknown).</li>
+      <li><strong>Central limit theorem:</strong> for large n (a common rule is n ≥ 30), x̄ is approximately normal whatever the shape of the population. If the population is already normal, x̄ is normal for any n.</li>
+      <li><strong>Sample proportion:</strong> mean of p̂ = p and <span class="formula">SE = √(p(1 − p) / n)</span>. The normal approximation works when np ≥ 5 and n(1 − p) ≥ 5.</li>
+      <li>Larger n gives a smaller standard error. Quadrupling n halves it.</li>
+    </ul>
+    <div class="example"><span class="eyebrow">Worked example</span>μ = 50, σ = 12, n = 36. SE = 12 / 6 = 2. P(x̄ &gt; 53): z = (53 − 50) / 2 = 1.5, so the probability is about 0.067.</div>
+    <div class="tip"><span class="eyebrow">Exam tip</span>Standard deviation describes individual values; standard error describes sample means. Using the wrong one is the most common mistake.</div>
+  </section>
+
+  <section class="card" id="ci">
+    <h2>5. Confidence intervals</h2>
+    <p>A confidence interval gives a range of plausible values for a population parameter: estimate ± margin of error.</p>
+    <ul>
+      <li><strong>Mean, σ known (or large n):</strong> <span class="formula">x̄ ± z × σ / √n</span></li>
+      <li><strong>Mean, σ unknown:</strong> <span class="formula">x̄ ± t × s / √n</span>, with n − 1 degrees of freedom</li>
+      <li><strong>Proportion:</strong> <span class="formula">p̂ ± z × √(p̂(1 − p̂) / n)</span></li>
+      <li><strong>Common z values:</strong> 90% → 1.645; 95% → 1.96; 99% → 2.576</li>
+      <li><strong>Sample size for a mean:</strong> <span class="formula">n = (z × σ / E)²</span>, where E is the margin of error you want. Round up.</li>
+    </ul>
+    <p><strong>Interpretation:</strong> a 95% interval means the method captures the true parameter in about 95% of repeated samples. It does not mean there is a 95% chance the true value lies in this one interval.</p>
+    <p><strong>What changes the width:</strong> higher confidence widens it; larger n narrows it; larger σ widens it.</p>
+    <div class="example"><span class="eyebrow">Worked example</span>x̄ = 200, s = 20, n = 25, 95% confidence. t (24 df) ≈ 2.064. Margin = 2.064 × 20 / 5 = 8.26, so the interval is about 191.7 to 208.3.</div>
+  </section>
+
+  <section class="card" id="hyp">
+    <h2>6. Hypothesis testing</h2>
+    <p>A hypothesis test asks whether sample evidence is strong enough to reject a claim about a population.</p>
+    <ol>
+      <li>State H₀ (the claim, always with =, ≤ or ≥) and H₁ (the alternative: ≠, &lt; or &gt;).</li>
+      <li>Choose the significance level α, usually 0.05.</li>
+      <li>Compute the test statistic.</li>
+      <li>Find the p-value, or the critical value.</li>
+      <li>Decide: if p &lt; α, reject H₀; otherwise fail to reject H₀. State the conclusion in business terms.</li>
+    </ol>
+    <ul>
+      <li><strong>One mean, σ known:</strong> <span class="formula">z = (x̄ − μ₀) / (σ / √n)</span></li>
+      <li><strong>One mean, σ unknown:</strong> <span class="formula">t = (x̄ − μ₀) / (s / √n)</span>, df = n − 1</li>
+      <li><strong>One proportion:</strong> <span class="formula">z = (p̂ − p₀) / √(p₀(1 − p₀) / n)</span></li>
+    </ul>
+    <div class="scroll">
+      <table>
+        <thead><tr><th></th><th>H₀ true</th><th>H₀ false</th></tr></thead>
+        <tbody>
+          <tr><td>Reject H₀</td><td>Type I error (probability α)</td><td>Correct (power = 1 − β)</td></tr>
+          <tr><td>Fail to reject H₀</td><td>Correct</td><td>Type II error (probability β)</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p><strong>p-value:</strong> the probability of getting a result at least as extreme as the sample, assuming H₀ is true. A small p-value is evidence against H₀. It is not the probability that H₀ is true.</p>
+    <div class="example"><span class="eyebrow">Worked example</span>A firm claims average delivery time is 30 minutes. A sample of 36 orders has x̄ = 32, s = 6. H₀: μ = 30; H₁: μ ≠ 30. t = (32 − 30) / (6 / 6) = 2.0 with 35 df. The two-sided p-value is about 0.053, so at α = 0.05 we fail to reject H₀ (a borderline result).</div>
+    <div class="tip"><span class="eyebrow">Exam tip</span>Never write "accept H₀". Write "fail to reject H₀" or "insufficient evidence". Excel: T.TEST, T.DIST.2T, Z.TEST.</div>
+  </section>
+
+  <section class="card" id="reg">
+    <h2>7. Regression and correlation</h2>
+    <p>Correlation measures the strength of a linear relationship; regression fits a line to predict one variable from another.</p>
+    <ul>
+      <li><strong>Correlation r</strong> ranges from −1 to +1. Near ±1 is a strong linear relationship; near 0 is a weak or no linear one. The sign gives the direction.</li>
+      <li><strong>Simple linear regression:</strong> <span class="formula">ŷ = b₀ + b₁x</span>, where <span class="formula">b₁ = r × (s_y / s_x)</span> and <span class="formula">b₀ = ȳ − b₁x̄</span>.</li>
+      <li><strong>Slope b₁</strong> is the expected change in y for a one-unit increase in x. <strong>Intercept b₀</strong> is the predicted y when x = 0 (meaningful only if x = 0 is realistic).</li>
+      <li><strong>R²</strong> is the share of the variation in y explained by x. In simple regression R² = r².</li>
+      <li><strong>Residual</strong> = y − ŷ. Good fits have residuals scattered randomly around zero.</li>
+      <li><strong>Testing the slope:</strong> H₀: β₁ = 0. If the p-value is below α, x is a statistically significant predictor of y.</li>
+    </ul>
+    <div class="example"><span class="eyebrow">Worked example</span>Sales = 20 + 3.5 × advertising (in $1,000s). Spending $10,000 on advertising predicts sales = 20 + 3.5 × 10 = 55.</div>
+    <div class="tip"><span class="eyebrow">Exam tip</span>Correlation is not causation. Avoid predicting far outside the range of x in your data. Excel: CORREL, SLOPE, INTERCEPT, RSQ, or the Data Analysis ToolPak Regression output.</div>
+  </section>
+
+  <section class="card" id="formulas">
+    <h2>Formula table</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th>Topic</th><th>Formula</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Sample mean</td><td class="f">x̄ = Σx / n</td><td>Sensitive to outliers</td></tr>
+          <tr><td>Sample variance</td><td class="f">s² = Σ(x − x̄)² / (n − 1)</td><td>Population: divide by N</td></tr>
+          <tr><td>Standard deviation</td><td class="f">s = √s²</td><td>Same units as data</td></tr>
+          <tr><td>Coefficient of variation</td><td class="f">CV = s / x̄</td><td>Compares spread across scales</td></tr>
+          <tr><td>Outlier fences</td><td class="f">Q1 − 1.5×IQR; Q3 + 1.5×IQR</td><td>IQR = Q3 − Q1</td></tr>
+          <tr><td>Complement</td><td class="f">P(A') = 1 − P(A)</td><td></td></tr>
+          <tr><td>Addition rule</td><td class="f">P(A or B) = P(A) + P(B) − P(A and B)</td><td>Mutually exclusive: last term is 0</td></tr>
+          <tr><td>Multiplication rule</td><td class="f">P(A and B) = P(A) × P(B | A)</td><td>Independent: P(A) × P(B)</td></tr>
+          <tr><td>Conditional probability</td><td class="f">P(A | B) = P(A and B) / P(B)</td><td></td></tr>
+          <tr><td>Bayes' theorem</td><td class="f">P(A | B) = P(B | A) P(A) / P(B)</td><td>Use a tree or 2×2 table</td></tr>
+          <tr><td>Binomial</td><td class="f">P(X = k) = C(n, k) pᵏ (1 − p)ⁿ⁻ᵏ</td><td>Mean np; variance np(1 − p)</td></tr>
+          <tr><td>z-score</td><td class="f">z = (x − μ) / σ</td><td>Then use the normal table</td></tr>
+          <tr><td>Standard error (mean)</td><td class="f">σ / √n (or s / √n)</td><td>CLT: x̄ ≈ normal for n ≥ 30</td></tr>
+          <tr><td>Standard error (proportion)</td><td class="f">√(p(1 − p) / n)</td><td>Need np ≥ 5 and n(1 − p) ≥ 5</td></tr>
+          <tr><td>CI for mean (σ known)</td><td class="f">x̄ ± z × σ / √n</td><td>z: 1.645, 1.96, 2.576</td></tr>
+          <tr><td>CI for mean (σ unknown)</td><td class="f">x̄ ± t × s / √n</td><td>df = n − 1</td></tr>
+          <tr><td>CI for proportion</td><td class="f">p̂ ± z × √(p̂(1 − p̂) / n)</td><td></td></tr>
+          <tr><td>Sample size (mean)</td><td class="f">n = (z × σ / E)²</td><td>Round up</td></tr>
+          <tr><td>z-test for mean</td><td class="f">z = (x̄ − μ₀) / (σ / √n)</td><td>Reject H₀ if p &lt; α</td></tr>
+          <tr><td>t-test for mean</td><td class="f">t = (x̄ − μ₀) / (s / √n)</td><td>df = n − 1</td></tr>
+          <tr><td>z-test for proportion</td><td class="f">z = (p̂ − p₀) / √(p₀(1 − p₀) / n)</td><td></td></tr>
+          <tr><td>Regression line</td><td class="f">ŷ = b₀ + b₁x</td><td>b₁ = r × s_y / s_x; b₀ = ȳ − b₁x̄</td></tr>
+          <tr><td>R²</td><td class="f">R² = r² (simple regression)</td><td>Share of variation explained</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <p>Ready to test yourself?</p>
+    <a class="btn" href="index.html">Start the practice drill</a>
+  </footer>
+</div>
+</body>
+</html>
